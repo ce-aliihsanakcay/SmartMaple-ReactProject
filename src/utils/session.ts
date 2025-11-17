@@ -36,7 +36,7 @@ class AuthSession {
     return Storage.get(AuthSession.sessionKey_phone_number);
   }
 
-  static getRoles(): number {
+  static getRoles(): string {
     return Storage.get(AuthSession.sessionKey_roles);
   }
 

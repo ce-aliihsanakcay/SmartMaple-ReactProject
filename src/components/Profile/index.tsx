@@ -12,7 +12,7 @@ const ProfileCard = ({ profile }: ProfileCardProps) => {
       <div className="profile-info">
         <h2>Welcome, {profile?.name}</h2>
         <p>{profile?.email ?? AuthSession.getEmail()}</p>
-        <p>{/*profile?.role ??*/ AuthSession.getRoles()}</p>
+        <p>{profile?.role?.name ?? AuthSession.getRoles()}</p>
       </div>
     </div>
   );
