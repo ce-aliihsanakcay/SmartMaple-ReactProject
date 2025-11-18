@@ -262,11 +262,32 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
               dayjs(date).format("DD-MM-YYYY")
             );
 
+            const staff = schedule?.staffs?.find((s) => s.id === selectedStaffId);
+            let highlightedPair: string = "";
+            if (staff) {
+              const staffPairList = staff && staff.pairList;
+              staffPairList?.forEach((pair) => {
+                schedule?.staffs?.map((staff: any, index: number) => {
+                  if (pair.staffId === staff.id)
+                    pair.colorIndex = index;
+                })
+              });
+              staffPairList?.forEach((pair) => {
+                const isHighlightedPair = getDatesBetween(pair.startDate, pair.endDate)
+                  .includes(dayjs(date).format("DD-MM-YYYY"));
+                const isThereAnyEvent = events.find(e => e.date === dayjs(date).format("YYYY-MM-DD"));
+
+                if (isHighlightedPair && isThereAnyEvent) {
+                  highlightedPair = `borderBottom-${pair.colorIndex}`;
+                }
+              })
+            }
+
             return (
               <div
                 className={`${found ? "" : "date-range-disabled"} 
                   ${isHighlighted ? "highlighted-date-orange" : ""} 
-                  highlightedPair 
+                  ${highlightedPair} 
                 `}
               >
                 {dayjs(date).date()}

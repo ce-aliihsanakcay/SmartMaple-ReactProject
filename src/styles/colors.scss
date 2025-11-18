@@ -7,7 +7,7 @@ $colors: (
   1: #fcc729,
   2: #ff8847,
   3: #c0c033,
-  4: #32a852,
+  4: #a8324e,
   5: #32a8a2,
   6: #327ba8,
   7: #3244a8,
@@ -63,13 +63,20 @@ $colors: (
   .bg-#{$key} {
     background-color: var(--color-#{$key}) !important;
   }
+
   .color-#{$key} {
     color: var(--color-#{$key}) !important;
   }
+
   .fill-#{$key} {
     fill: var(--color-#{$key}) !important;
   }
+
   .borderColor-#{$key} {
     border-color: var(--color-#{$key}) !important;
+  }
+
+  .borderBottom-#{$key} {
+    border-bottom: 5px solid var(--color-#{$key}) !important;
   }
 }
