@@ -17,9 +17,11 @@ import type { EventInput } from "@fullcalendar/core/index.js";
 import "../profileCalendar.scss";
 
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import utc from "dayjs/plugin/utc";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
 
+dayjs.extend(customParseFormat);
 dayjs.extend(utc);
 dayjs.extend(isSameOrBefore);
 
@@ -131,11 +133,12 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
   useEffect(() => {
     const firstStaffId = schedule?.staffs?.[0]?.id;
     setSelectedStaffId(firstStaffId);
-    generateStaffBasedCalendar();
   }, [schedule]);
 
   useEffect(() => {
-    generateStaffBasedCalendar();
+    if (selectedStaffId) {
+      generateStaffBasedCalendar();
+    }
   }, [selectedStaffId]);
 
   const RenderEventContent = ({ eventInfo }: any) => {
