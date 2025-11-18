@@ -6,8 +6,10 @@ import { useEffect, useRef, useState } from "react";
 
 import type { ScheduleInstance } from "../../models/schedule";
 import type { UserInstance } from "../../models/user";
+import EventPopup from "../EventPopup/index";
 
 import FullCalendar from "@fullcalendar/react";
+import type { EventClickArg } from "@fullcalendar/core";
 
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -39,6 +41,23 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
   const [initialDate, setInitialDate] = useState<Date>(
     dayjs(schedule?.scheduleStartDate).toDate()
   );
+  const [popupOpen, setPopupOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
+
+  const handleEventClick = (clickEventInfo: EventClickArg) => {
+    const event = events.find(e => e.id === clickEventInfo.event.id);
+    if (!event) return;
+
+    const staff = schedule?.staffs?.find((staff) => staff.id === event?.staffId);
+    const shift = schedule?.shifts?.find((shift) => shift.id === event?.shiftId);
+    event.staff = staff;
+    event.shift = shift;
+
+    if (event) {
+      setSelectedEvent(event);
+      setPopupOpen(true);
+    }
+  };
 
   const getPlugins = () => {
     const plugins = [dayGridPlugin];
@@ -186,6 +205,7 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
           initialView="dayGridMonth"
           initialDate={initialDate}
           events={events}
+          eventClick={handleEventClick}
           firstDay={1}
           dayMaxEventRows={4}
           fixedWeekCount={true}
@@ -243,6 +263,12 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
               </div>
             );
           }}
+        />
+
+        <EventPopup
+          isOpen={popupOpen}
+          onClose={() => setPopupOpen(false)}
+          data={selectedEvent}
         />
       </div>
     </div>
