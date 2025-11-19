@@ -248,7 +248,7 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
           ref={calendarRef}
           locale={auth.language}
           plugins={getPlugins()}
-          contentHeight={400}
+          contentHeight={550}
           handleWindowResize={true}
           selectable={true}
           editable={true}

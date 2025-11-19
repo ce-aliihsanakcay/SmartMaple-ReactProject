@@ -1,5 +1,5 @@
 // components/EventPopup.tsx
-import React from "react";
+import React, { useEffect } from "react";
 import "../eventpopup.scss";
 import dayjs from "dayjs";
 
@@ -10,6 +10,15 @@ interface EventPopupProps {
 }
 
 const EventPopup: React.FC<EventPopupProps> = ({ isOpen, onClose, data }) => {
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleEsc);
+
+    return () => document.removeEventListener("keydown", handleEsc);
+  }, [onClose]);
+
   if (!isOpen || !data) return null;
 
   const { title, date, staff, shift } = data;
