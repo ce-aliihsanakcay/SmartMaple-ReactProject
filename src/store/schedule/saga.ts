@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-expressions */
-import type { AxiosResponse } from 'axios';
 import type { Action } from 'redux-actions';
 
 import { put, takeEvery } from 'redux-saga/effects';
@@ -33,8 +32,20 @@ function* asyncFetchSchedule({
   }
 }
 
+function* asyncUpdateSchedule(action: any): any {
+  yield put(updateProgress());
+  try {
+    yield put(actions.updateScheduleSuccess(action.payload));
+  } catch (err) {
+    yield put(actions.updateScheduleFailed());
+  } finally {
+    yield put(updateProgress(false));
+  }
+}
+
 const scheduleSagas = [
   takeEvery(types.FETCH_SCHEDULE, asyncFetchSchedule),
+  takeEvery(types.UPDATE_SCHEDULE, asyncUpdateSchedule),
 ];
 
 export default scheduleSagas;

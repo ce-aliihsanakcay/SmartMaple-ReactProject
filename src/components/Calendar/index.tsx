@@ -3,13 +3,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { useEffect, useRef, useState } from "react";
+import { useDispatch } from 'react-redux';
+import { updateSchedule } from "../../store/schedule/actions";
 
 import type { ScheduleInstance } from "../../models/schedule";
 import type { UserInstance } from "../../models/user";
 import EventPopup from "../EventPopup/index";
 
 import FullCalendar from "@fullcalendar/react";
-import type { EventClickArg } from "@fullcalendar/core";
+import type { EventClickArg, EventDropArg } from "@fullcalendar/core";
 
 import interactionPlugin from "@fullcalendar/interaction";
 import dayGridPlugin from "@fullcalendar/daygrid";
@@ -35,6 +37,7 @@ type CalendarContainerProps = {
 
 const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
   const calendarRef = useRef<FullCalendar>(null);
+  const dispatch = useDispatch<any>();
 
   const [events, setEvents] = useState<EventInput[]>([]);
   const [highlightedDates, setHighlightedDates] = useState<string[]>([]);
@@ -44,6 +47,40 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
   );
   const [popupOpen, setPopupOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<EventInput | null>(null);
+
+  const handleEventDrop = (info: EventDropArg) => {
+    const event = info.event;
+    const assignment = schedule.assignments.find(a => a.id === event.id);
+
+    if (!assignment) return;
+
+    const newShiftStart = dayjs(event.start)
+      .hour(dayjs(assignment.shiftStart).hour())
+      .minute(dayjs(assignment.shiftStart).minute())
+      .second(0)
+      .millisecond(0)
+      .toISOString();
+
+    const newShiftEnd = dayjs(event.start)
+      .hour(dayjs(assignment.shiftEnd).hour())
+      .minute(dayjs(assignment.shiftEnd).minute())
+      .second(0)
+      .millisecond(0)
+      .toISOString();
+
+    const updatedSchedule = {
+      ...schedule,
+      assignments: schedule.assignments.map(a => {
+        if (a.id === event.id) {
+          a.shiftStart = newShiftStart;
+          a.shiftEnd = newShiftEnd;
+        }
+        return a;
+      })
+    };
+
+    dispatch(updateSchedule(updatedSchedule));
+  };
 
   const handleEventClick = (clickEventInfo: EventClickArg) => {
     const event = events.find(e => e.id === clickEventInfo.event.id);
@@ -153,15 +190,15 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
   };
 
   useEffect(() => {
+    if (selectedStaffId) return;
     const firstStaffId = schedule?.staffs?.[0]?.id;
     setSelectedStaffId(firstStaffId);
   }, [schedule]);
 
   useEffect(() => {
-    if (selectedStaffId) {
-      generateStaffBasedCalendar();
-    }
-  }, [selectedStaffId]);
+    if (!selectedStaffId) return;
+    generateStaffBasedCalendar();
+  }, [selectedStaffId, schedule]);
 
   const RenderEventContent = ({ eventInfo }: any) => {
     return (
@@ -223,6 +260,7 @@ const CalendarContainer = ({ schedule, auth }: CalendarContainerProps) => {
           eventClick={handleEventClick}
           firstDay={1}
           dayMaxEventRows={4}
+          eventDrop={handleEventDrop}
           fixedWeekCount={true}
           showNonCurrentDates={true}
           eventContent={(eventInfo: any) => (

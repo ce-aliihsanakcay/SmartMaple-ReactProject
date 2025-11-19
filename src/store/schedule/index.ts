@@ -39,6 +39,17 @@ const scheduleReducer: any = {
     loading: false,
     errors: payload,
   }),
+
+
+  [types.UPDATE_SCHEDULE_SUCCESS]: (
+    state: ScheduleState,
+    { payload }: Action<typeof state.schedule>
+  ): ScheduleState => ({
+    ...state,
+    loading: false,
+    errors: {},
+    schedule: payload,
+  }),
 };
 
 export default handleActions(scheduleReducer, initialState) as any;
